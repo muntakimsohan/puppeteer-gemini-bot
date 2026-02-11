@@ -1,0 +1,25 @@
+const express = require('express');
+const puppeteer = require('puppeteer');
+const app = express();
+app.use(express.json());
+
+app.post('/generate', async (req, res) => {
+  const prompt = req.body.prompt || 'test prompt';
+  try {
+    const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+    const page = await browser.newPage();
+    await page.goto('https://gemini.google.com/app', { waitUntil: 'networkidle2', timeout: 60000 });
+    await page.waitForSelector('textarea', { timeout: 60000 });
+    await page.focus('textarea');
+    await page.keyboard.type(prompt + '\n\ncute premium clipart, valentine theme, watercolor kawaii style, isolated subject, transparent background, high resolution PNG, no text, no watermark');
+    await page.keyboard.press('Enter');
+    await page.waitForSelector('img', { timeout: 120000 });
+    const imgSrc = await page.evaluate(() => document.querySelector('img').src);
+    await browser.close();
+    res.json({ image: imgSrc });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.listen(process.env.PORT || 3000, () => console.log('Server running'));
