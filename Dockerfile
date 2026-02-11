@@ -1,6 +1,6 @@
-FROM node:20
+FROM node:20-slim
 
-# Chrome ইনস্টল করো
+# Chrome + dependencies ইনস্টল করো
 RUN apt-get update && apt-get install -y \
     ca-certificates \
     fonts-liberation \
@@ -37,11 +37,13 @@ RUN apt-get update && apt-get install -y \
     lsb-release \
     wget \
     xdg-utils \
+    gnupg \
     --no-install-recommends && \
+    wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/googlechrome-linux-keyring.gpg && \
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/googlechrome-linux-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list && \
+    apt-get update && \
+    apt-get install -y google-chrome-stable && \
     rm -rf /var/lib/apt/lists/*
-
-# Puppeteer Chrome ইনস্টল করো
-RUN npx puppeteer browsers install chrome
 
 WORKDIR /app
 
