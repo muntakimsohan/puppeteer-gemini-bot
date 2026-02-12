@@ -4,13 +4,19 @@ const app = express();
 app.use(express.json());
 
 app.post('/generate', async (req, res) => {
-  const prompt = req.body.prompt || 'test prompt';
+  const prompt = req.body.prompt || 'test prompt from n8n';
 
   try {
     const browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
-      executablePath: '/usr/bin/google-chrome-stable',
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--disable-accelerated-2d-canvas'
+      ],
+      executablePath: '/usr/bin/google-chrome-stable', // Fly.io-তে এই path-এ Chrome থাকে
       ignoreHTTPSErrors: true
     });
 
